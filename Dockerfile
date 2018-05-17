@@ -7,8 +7,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install MATLAB MCR in /opt/mcr/
-ENV MATLAB_VERSION R2018a
-ENV MCR_VERSION v94
+ENV MATLAB_VERSION R2017b
+ENV MCR_VERSION v93
 RUN mkdir /opt/mcr_install && \
     mkdir /opt/mcr && \
     wget -P /opt/mcr_install http://www.mathworks.com/supportfiles/downloads/${MATLAB_VERSION}/deployment_files/${MATLAB_VERSION}/installers/glnxa64/MCR_${MATLAB_VERSION}_glnxa64_installer.zip && \
