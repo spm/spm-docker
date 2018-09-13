@@ -28,3 +28,4 @@ RUN wget -P /opt http://www.fil.ion.ucl.ac.uk/spm/download/restricted/bids/spm${
 
 # Configure entry point
 ENTRYPOINT ["/opt/spm12/spm12"]
+CMD ["--help"]
