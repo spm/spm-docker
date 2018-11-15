@@ -15,7 +15,7 @@ RUN apt-get update && apt-get -y install \
      /var/log/apt/term*
 
 RUN mkdir /opt/spm12 \
- && curl -SL https://github.com/spm/spm12/archive/r7219.tar.gz \
+ && curl -SL https://github.com/spm/spm12/archive/r7487.tar.gz \
   | tar -xzC /opt/spm12 --strip-components 1 \
  && make -C /opt/spm12/src PLATFORM=octave distclean \
  && make -C /opt/spm12/src PLATFORM=octave \
