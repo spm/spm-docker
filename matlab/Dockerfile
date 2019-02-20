@@ -3,7 +3,7 @@ FROM ubuntu:trusty
 MAINTAINER Guillaume Flandin <g.flandin@ucl.ac.uk>
 
 RUN apt-get update && \
-    apt-get install -y unzip xorg wget && \
+    apt-get install -y unzip xorg wget libasound2 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install MATLAB MCR in /opt/mcr/
