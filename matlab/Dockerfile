@@ -27,10 +27,15 @@ ENV SPM_REVISION r7487
 ENV LD_LIBRARY_PATH /opt/mcr/${MCR_VERSION}/runtime/glnxa64:/opt/mcr/${MCR_VERSION}/bin/glnxa64:/opt/mcr/${MCR_VERSION}/sys/os/glnxa64:/opt/mcr/${MCR_VERSION}/sys/opengl/lib/glnxa64
 ENV MCR_INHIBIT_CTF_LOCK 1
 ENV SPM_HTML_BROWSER 0
+# Running SPM once with "function exit" tests the succesfull installation *and*
+# extracts the ctf archive which is necessary if singularity is going to be
+# used later on, because singularity containers are read-only.
+# Also, set +x on the entrypoint for non-root container invocations
 RUN wget --no-check-certificate -P /opt https://www.fil.ion.ucl.ac.uk/spm/download/restricted/bids/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip \
  && unzip -q /opt/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip -d /opt \
  && rm -f /opt/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip \
- && /opt/spm${SPM_VERSION}/spm${SPM_VERSION} function exit
+ && /opt/spm${SPM_VERSION}/spm${SPM_VERSION} function exit \
+ && chmod +x /opt/spm${SPM_VERSION}/spm${SPM_VERSION}
 
 # Configure entry point
 ENTRYPOINT ["/opt/spm12/spm12"]
