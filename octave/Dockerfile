@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:eoan
 
 MAINTAINER Guillaume Flandin <g.flandin@ucl.ac.uk>
 
