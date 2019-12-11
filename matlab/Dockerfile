@@ -2,7 +2,7 @@ FROM ubuntu:bionic
 
 MAINTAINER Guillaume Flandin <g.flandin@ucl.ac.uk>
 
-RUN apt-get update && apt-get -y install \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
      unzip xorg wget \
  && apt-get clean \
  && rm -rf \
