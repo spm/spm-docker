@@ -1,4 +1,4 @@
-FROM ubuntu:cosmic
+FROM ubuntu:focal
 
 MAINTAINER Guillaume Flandin <g.flandin@ucl.ac.uk>
 
