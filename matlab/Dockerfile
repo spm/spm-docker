@@ -12,8 +12,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
      /var/log/apt/term*
 
 # Install MATLAB MCR in /opt/mcr/
-ENV MATLAB_VERSION R2018b
-ENV MCR_VERSION v95
+ENV MATLAB_VERSION R2019b
+ENV MCR_VERSION v97
 RUN mkdir /opt/mcr_install \
  && mkdir /opt/mcr \
  && wget --progress=bar:force -P /opt/mcr_install https://www.mathworks.com/supportfiles/downloads/${MATLAB_VERSION}/deployment_files/${MATLAB_VERSION}/installers/glnxa64/MCR_${MATLAB_VERSION}_glnxa64_installer.zip \
@@ -23,7 +23,7 @@ RUN mkdir /opt/mcr_install \
 
 # Install SPM Standalone in /opt/spm12/
 ENV SPM_VERSION 12
-ENV SPM_REVISION r7487
+ENV SPM_REVISION r7771
 ENV LD_LIBRARY_PATH /opt/mcr/${MCR_VERSION}/runtime/glnxa64:/opt/mcr/${MCR_VERSION}/bin/glnxa64:/opt/mcr/${MCR_VERSION}/sys/os/glnxa64:/opt/mcr/${MCR_VERSION}/sys/opengl/lib/glnxa64
 ENV MCR_INHIBIT_CTF_LOCK 1
 ENV SPM_HTML_BROWSER 0
