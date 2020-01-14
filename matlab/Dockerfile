@@ -24,7 +24,7 @@ RUN mkdir /opt/mcr_install \
 # Install SPM Standalone in /opt/spm12/
 ENV SPM_VERSION 12
 ENV SPM_REVISION r7771
-ENV LD_LIBRARY_PATH /opt/mcr/${MCR_VERSION}/runtime/glnxa64:/opt/mcr/${MCR_VERSION}/bin/glnxa64:/opt/mcr/${MCR_VERSION}/sys/os/glnxa64:/opt/mcr/${MCR_VERSION}/extern/bin/glnxa64
+ENV LD_LIBRARY_PATH /opt/mcr/${MCR_VERSION}/runtime/glnxa64:/opt/mcr/${MCR_VERSION}/bin/glnxa64:/opt/mcr/${MCR_VERSION}/sys/os/glnxa64:/opt/mcr/${MCR_VERSION}/sys/opengl/lib/glnxa64:/opt/mcr/${MCR_VERSION}/extern/bin/glnxa64
 ENV MCR_INHIBIT_CTF_LOCK 1
 ENV SPM_HTML_BROWSER 0
 # Running SPM once with "function exit" tests the succesfull installation *and*
