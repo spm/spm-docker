@@ -5,7 +5,7 @@ diff -u0 -rN /opt/spm12/fcnchk.m /opt/spm12/fcnchk.m
 +########################################################################
 +##
 +## COMPATIBILITY FILE FOR GNU OCTAVE
-+## 
++##
 +## DELETE IF USING MATLAB OR IF USING A VERSION OF OCTAVE THAT ALREADY
 +## INCLUDES THIS FUNCTION
 +##
@@ -24,7 +24,7 @@ diff -u0 -rN /opt/spm12/gui_mainfcn.m /opt/spm12/gui_mainfcn.m
 +########################################################################
 +##
 +## COMPATIBILITY FILE FOR GNU OCTAVE
-+## 
++##
 +## DELETE IF USING MATLAB OR IF USING A VERSION OF OCTAVE THAT ALREADY
 +## INCLUDES THIS FUNCTION
 +##
@@ -788,7 +788,7 @@ diff -u0 -rN /opt/spm12/rng.m /opt/spm12/rng.m
 +########################################################################
 +##
 +## COMPATIBILITY FILE FOR GNU OCTAVE
-+## 
++##
 +## DELETE IF USING MATLAB OR IF USING A VERSION OF OCTAVE THAT ALREADY
 +## INCLUDES THIS FUNCTION
 +##
