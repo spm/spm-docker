@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:20.04
 
 MAINTAINER Guillaume Flandin <g.flandin@ucl.ac.uk>
 
@@ -14,10 +14,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 # Install MATLAB MCR in /opt/mcr/
 ENV MATLAB_VERSION R2019b
 ENV MCR_VERSION v97
+ENV MCR_UPDATE 9
 RUN mkdir /opt/mcr_install \
  && mkdir /opt/mcr \
- && wget --progress=bar:force -P /opt/mcr_install https://ssd.mathworks.com/supportfiles/downloads/${MATLAB_VERSION}/Release/3/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_${MATLAB_VERSION}_Update_3_glnxa64.zip \
- && unzip -q /opt/mcr_install/MATLAB_Runtime_${MATLAB_VERSION}_Update_3_glnxa64.zip -d /opt/mcr_install \
+ && wget --progress=bar:force -P /opt/mcr_install https://ssd.mathworks.com/supportfiles/downloads/${MATLAB_VERSION}/Release/${MCR_UPDATE}/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_${MATLAB_VERSION}_Update_${MCR_UPDATE}_glnxa64.zip \
+ && unzip -q /opt/mcr_install/MATLAB_Runtime_${MATLAB_VERSION}_Update_${MCR_UPDATE}_glnxa64.zip -d /opt/mcr_install \
  && /opt/mcr_install/install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent \
  && rm -rf /opt/mcr_install /tmp/*
 
