@@ -1,0 +1,57 @@
+BootStrap: docker
+From: ubuntu:20.04
+
+%post
+    apt-get -qq update
+    DEBIAN_FRONTEND=noninteractive apt-get --yes --quiet --no-install-recommends install \
+      unzip \
+      xorg \
+      curl \
+      ca-certificates
+    
+    mkdir /opt/mcr /opt/mcr_install
+    MATLAB_VERSION=R2019b
+    MCR_VERSION=v97
+    MCR_UPDATE=9
+    curl -fsSL --retry 5 https://ssd.mathworks.com/supportfiles/downloads/${MATLAB_VERSION}/Release/${MCR_UPDATE}/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_${MATLAB_VERSION}_Update_${MCR_UPDATE}_glnxa64.zip > /opt/mcr_install/mcr.zip
+    unzip -q /opt/mcr_install/mcr.zip -d /opt/mcr_install
+    cat << EOF > /opt/mcr_install/installer_input.txt
+    mode silent
+    destinationFolder /opt/mcr
+    agreeToLicense yes
+    product.MATLAB_Runtime___Core true
+    product.MATLAB_Runtime___Numerics true
+EOF
+    /opt/mcr_install/install -inputFIle /opt/mcr_install/installer_input.txt
+    rm -rf /opt/mcr_install
+
+    mkdir /opt/spm12
+    SPM_REVISION=r7771
+    curl -fsSL --retry 5 https://www.fil.ion.ucl.ac.uk/spm/download/restricted/bids/spm12_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip > /opt/spm12.zip
+    unzip -q /opt/spm12.zip -d /opt
+    rm -f /opt/spm12.zip
+    chmod +x /opt/spm12/run_spm12.sh /opt/spm12/spm12
+    ln -s /opt/spm12/spm12_mcr/spm12/spm12/bin/spm12-mcr /usr/local/bin/spm12
+    
+    /opt/spm12/run_spm12.sh /opt/mcr/${MCR_VERSION} function exit
+
+    apt-get --yes remove unzip curl
+    apt-get --yes autoremove
+    apt-get --yes clean
+
+%environment
+    export SPM_HOME=/opt/spm12
+    export MCR_HOME=/opt/mcr/v97
+    export MCR_INHIBIT_CTF_LOCK=1
+    export SPM_HTML_BROWSER=0
+
+%runscript
+    spm12 "$@"
+
+%labels
+    Author fil.spm@ucl.ac.uk
+    Version v1.0
+
+%help
+    This is a container with SPM12 and MATLAB Runtime.
+
