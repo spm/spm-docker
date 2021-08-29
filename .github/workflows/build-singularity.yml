@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        recipe: ["singularity/spm12-octave.def"]
+        recipe: ["singularity/spm12-octave.def", "singularity/spm12-matlab.def"]
 
     name: Check ${{ matrix.recipe }}
     steps:
@@ -88,7 +88,7 @@ jobs:
       - name: Test Container
         if: ${{ env.keepgoing == 'true' }}
         run: |
-          singularity exec container.sif --version
+          singularity run container.sif --version
 
       - name: Login and Deploy Container
         if: (github.event_name != 'pull_request')
