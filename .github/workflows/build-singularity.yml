@@ -5,7 +5,7 @@ on:
     branches:
       - main
 
-  pull_request: []
+  pull_request:
 
 jobs:
   build-test-deploy-singularity:
@@ -86,9 +86,9 @@ jobs:
          fi
 
       - name: Test Container
-       if: ${{ env.keepgoing == 'true' }}
-       run: |
-         singularity exec container.sif --version
+        if: ${{ env.keepgoing == 'true' }}
+        run: |
+          singularity exec container.sif --version
 
       - name: Login and Deploy Container
         if: (github.event_name != 'pull_request')
