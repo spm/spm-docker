@@ -88,7 +88,7 @@ jobs:
       - name: Test Container
         if: ${{ env.keepgoing == 'true' }}
         run: |
-          singularity run container.sif --version
+          singularity run spm12.sif --version
 
       - name: Login and Deploy Container
         if: (github.event_name != 'pull_request')
