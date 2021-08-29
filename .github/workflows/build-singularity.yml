@@ -85,7 +85,7 @@ jobs:
            ls
          fi
 
-      -name: Test Container
+      - name: Test Container
        if: ${{ env.keepgoing == 'true' }}
        run: |
          singularity exec container.sif --version
