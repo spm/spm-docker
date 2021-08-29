@@ -69,11 +69,10 @@ jobs:
         env:
           recipe: ${{ matrix.recipe }}
         run: |
-         ls 
          if [ -f "${{ matrix.recipe }}" ]; then
-            sudo -E singularity build container.sif ${{ matrix.recipe }}
-            tag=$(echo "${recipe/Singularity\./}")
-            if [ "$tag" == "Singularity" ]; then
+            tag=$(echo "${recipe/singularity\/spm12-/}")
+            tag=$(echo "${tag/.def/}")
+            if [ "$tag" == "" ]; then
                 tag=latest
             fi
             # Build the container and name by tag
@@ -84,6 +83,7 @@ jobs:
            echo "Present working directory: $PWD"
            ls
          fi
+         sudo -E singularity build spm12.sif ${{ matrix.recipe }}
 
       - name: Test Container
         if: ${{ env.keepgoing == 'true' }}
@@ -95,7 +95,8 @@ jobs:
         env:
           keepgoing: ${{ env.keepgoing }}
         run: |         
-            if [[ "${keepgoing}" == "true" ]]; then
-                # echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
-                # singularity push container.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
-            fi
+          if [[ "${keepgoing}" == "true" ]]; then
+            echo "To do"
+            # echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
+            # singularity push spm12.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
+          fi
