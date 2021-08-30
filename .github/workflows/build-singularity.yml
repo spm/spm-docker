@@ -96,6 +96,6 @@ jobs:
         run: |         
           if [[ "${keepgoing}" == "true" ]]; then
             echo "To do"
-            # echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
-            # singularity push spm12.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
+            echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
+            singularity push spm12.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
           fi
