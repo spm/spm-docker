@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        recipe: ["singularity/spm12-octave.def", "singularity/spm12-matlab.def"]
+        recipe: ["matlab/singularity.def", "octave/singularity.def"]
 
     name: Check ${{ matrix.recipe }}
     steps:
@@ -70,8 +70,7 @@ jobs:
           recipe: ${{ matrix.recipe }}
         run: |
          if [ -f "${{ matrix.recipe }}" ]; then
-            tag=$(echo "${recipe/singularity\/spm12-/}")
-            tag=$(echo "${tag/.def/}")
+            tag=$(basename $(dirname recipe))
             if [ "$tag" == "" ]; then
                 tag=latest
             fi
