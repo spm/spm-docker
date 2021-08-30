@@ -70,7 +70,7 @@ jobs:
           recipe: ${{ matrix.recipe }}
         run: |
          if [ -f "${{ matrix.recipe }}" ]; then
-            tag=$(basename $(dirname recipe))
+            tag=$(basename $(dirname ${recipe}))
             if [ "$tag" == "" ]; then
                 tag=latest
             fi
