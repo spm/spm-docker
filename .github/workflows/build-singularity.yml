@@ -21,7 +21,7 @@ jobs:
     steps:
 
       - name: Check out code for the container build
-        uses: actions/checkout@v2      
+        uses: actions/checkout@v2
 
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
@@ -54,7 +54,7 @@ jobs:
           cd singularity-ce-${SINGULARITY_VERSION} && \
           ./mconfig -p /usr/local && \
           make -C builddir && \
-          sudo make -C builddir install          
+          sudo make -C builddir install
 
       - name: Build Container
         run: |

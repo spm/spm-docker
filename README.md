@@ -12,18 +12,23 @@
 
 ## Container Registries
 
-* [Docker Hub](https://hub.docker.com/r/spmcentral/spm/)
-
-```
-docker pull spmcentral/spm:latest
-docker pull spmcentral/spm:octave
-```
-
 * [GitHub Packages Container registry](https://ghcr.io/)
+
+```
+docker pull ghcr.io/spm/spm-docker:docker-matlab
+docker pull ghcr.io/spm/spm-docker:docker-octave
+```
 
 ```
 singularity pull oras://ghcr.io/spm/spm-docker:matlab
 singularity pull oras://ghcr.io/spm/spm-docker:octave
+```
+
+* [Docker Hub](https://hub.docker.com/r/spmcentral/spm/) (deprecated)
+
+```
+docker pull spmcentral/spm:latest
+docker pull spmcentral/spm:octave
 ```
 
 ## See also
