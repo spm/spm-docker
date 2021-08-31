@@ -1,0 +1,42 @@
+name: Build & Deploy Docker Containers
+on:
+  push:
+    branches:
+      - main
+
+  release:
+    types: [published]
+
+  pull_request:
+
+jobs:
+  build-test-deploy-docker:
+    runs-on: ubuntu-latest
+    env:
+      registry: ghcr.io
+    strategy:
+      fail-fast: false
+      matrix:
+        dockerfile: ["matlab/Dockerfile", "octave/Dockerfile"]
+    
+    name: Build ${{ matrix.dockerfile }}
+    steps:
+    
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build Container
+        run: |
+          tag=docker-$(basename $(dirname ${{ matrix.dockerfile }}))
+          docker build -f ${{ matrix.dockerfile }} -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${tag} .
+          docker images
+
+      - name: Log in and Deploy Container
+        if: (github.event_name != 'pull_request')
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.registry }}
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker push ${{ env.registry }}/${GITHUB_REPOSITORY} --all-tags

@@ -1,8 +1,11 @@
-name: Singularity Build
+name: Build & Deploy Singularity Containers
 on: 
   push:
     branches:
       - main
+
+  release:
+    types: [published]
 
   pull_request:
 
