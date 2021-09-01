@@ -65,7 +65,9 @@ jobs:
           singularity run spm12.sif --version
 
       - name: Login and Deploy Container
-        if: (github.event_name != 'pull_request')
+        if: |
+          (github.event_name != 'pull_request') &&
+          (github.repository_owner == 'spm')
         run: |
           tag=$(basename $(dirname ${{ matrix.recipe }}))
           if [ "$tag" == "" ]; then
