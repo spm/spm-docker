@@ -42,7 +42,7 @@ jobs:
         if: |
           (github.event_name != 'pull_request') &&
           (github.repository_owner == 'spm')
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.registry }}
           username: ${{ secrets.GHCR_USERNAME }}
