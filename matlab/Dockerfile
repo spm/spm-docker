@@ -1,6 +1,7 @@
 FROM ubuntu:22.04
 
-LABEL org.opencontainers.image.authors="Guillaume Flandin <g.flandin@ucl.ac.uk>"
+LABEL org.opencontainers.image.authors="Guillaume Flandin <fil.spm@ucl.ac.uk>"
+LABEL org.opencontainers.image.source https://github.com/spm/spm-docker
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
      unzip xorg wget \
