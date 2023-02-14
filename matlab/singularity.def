@@ -27,7 +27,7 @@ EOF
 
     mkdir /opt/spm12
     SPM_REVISION=r7771
-    curl -fsSL --retry 5 https://www.fil.ion.ucl.ac.uk/spm/download/restricted/bids/spm12_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip > /opt/spm12.zip
+    curl -fsSL --retry 5 https://www.fil.ion.ucl.ac.uk/spm/download/restricted/utopia/spm12/spm12_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip > /opt/spm12.zip
     unzip -q /opt/spm12.zip -d /opt
     rm -f /opt/spm12.zip
     chmod +x /opt/spm12/run_spm12.sh /opt/spm12/spm12
