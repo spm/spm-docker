@@ -31,7 +31,7 @@ EOF
     unzip -q /opt/spm12.zip -d /opt
     rm -f /opt/spm12.zip
     chmod +x /opt/spm12/run_spm12.sh /opt/spm12/spm12
-    ln -s /opt/spm12/spm12_mcr/spm12/spm12/bin/spm12-mcr /usr/local/bin/spm12
+    ln -s /opt/spm12/spm12_mcr/spm/spm12/bin/spm12-mcr /usr/local/bin/spm12
     
     /opt/spm12/run_spm12.sh /opt/mcr/${MCR_VERSION} function exit
 
