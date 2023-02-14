@@ -41,7 +41,7 @@ ENV SPM_HTML_BROWSER 0
 # extracts the ctf archive which is necessary if singularity is going to be
 # used later on, because singularity containers are read-only.
 # Also, set +x on the entrypoint for non-root container invocations
-RUN wget --no-check-certificate --progress=bar:force -P /opt https://www.fil.ion.ucl.ac.uk/spm/download/restricted/bids/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip \
+RUN wget --no-check-certificate --progress=bar:force -P /opt https://www.fil.ion.ucl.ac.uk/spm/download/restricted/utopia/spm12/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip \
  && unzip -q /opt/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip -d /opt \
  && rm -f /opt/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip \
  && /opt/spm${SPM_VERSION}/spm${SPM_VERSION} function exit \
