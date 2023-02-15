@@ -10,8 +10,6 @@ on:
   pull_request:
 
   workflow_dispatch:
-    branches:
-      - main
 
   schedule:
     - cron: '0 0 1 * *'
@@ -30,10 +28,10 @@ jobs:
       - name: Check out code for the container build
         uses: actions/checkout@v3
 
-      - name: Set up Go 1.13
+      - name: Set up Go 1.18
         uses: actions/setup-go@v3
         with:
-          go-version: 1.13
+          go-version: 1.18
         id: go
 
       - name: Install Dependencies
@@ -49,7 +47,7 @@ jobs:
 
       - name: Install Singularity
         env:
-          SINGULARITY_VERSION: 3.8.1
+          SINGULARITY_VERSION: 3.10.0
           GOPATH: /tmp/go
         run: |
           mkdir -p $GOPATH
