@@ -4,12 +4,12 @@ LABEL org.opencontainers.image.authors="SPM <fil.spm@ucl.ac.uk>"
 LABEL org.opencontainers.image.source="https://github.com/spm/spm-docker"
 LABEL org.opencontainers.image.url="https://www.fil.ion.ucl.ac.uk/spm/"
 LABEL org.opencontainers.image.documentation="https://www.fil.ion.ucl.ac.uk/spm/"
-LABEL org.opencontainers.image.version="SPM12"
-LABEL org.opencontainers.image.revision="r7771"
+LABEL org.opencontainers.image.version="SPM"
+LABEL org.opencontainers.image.revision="dev"
 LABEL org.opencontainers.image.vendor="Wellcome Centre for Human Neuroimaging"
 LABEL org.opencontainers.image.licenses="GPL-2.0+"
 LABEL org.opencontainers.image.title="Statistical Parametric Mapping (SPM) Software"
-LABEL org.opencontainers.image.description="Analysis of brain imaging data sequences (fMRI, PET, EEG, MEG)"
+LABEL org.opencontainers.image.description="SPM Software and selected third-party extensions"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
      unzip xorg wget \
@@ -30,20 +30,21 @@ RUN mkdir /opt/mcr_install \
  && unzip -q /opt/mcr_install/MATLAB_Runtime_${MATLAB_VERSION}_Update_${MCR_UPDATE}_glnxa64.zip -d /opt/mcr_install \
  && /opt/mcr_install/install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent \
  && rm -rf /opt/mcr_install /tmp/*
+ENV LD_LIBRARY_PATH /opt/mcr/${MCR_VERSION}/runtime/glnxa64:/opt/mcr/${MCR_VERSION}/bin/glnxa64:/opt/mcr/${MCR_VERSION}/sys/os/glnxa64:/opt/mcr/${MCR_VERSION}/sys/opengl/lib/glnxa64:/opt/mcr/${MCR_VERSION}/extern/bin/glnxa64
+ENV MCR_INHIBIT_CTF_LOCK 1
 
 # Install SPM Standalone in /opt/spm12/
 ENV SPM_VERSION 12
-ENV SPM_REVISION r7771
-ENV LD_LIBRARY_PATH /opt/mcr/${MCR_VERSION}/runtime/glnxa64:/opt/mcr/${MCR_VERSION}/bin/glnxa64:/opt/mcr/${MCR_VERSION}/sys/os/glnxa64:/opt/mcr/${MCR_VERSION}/sys/opengl/lib/glnxa64:/opt/mcr/${MCR_VERSION}/extern/bin/glnxa64
-ENV MCR_INHIBIT_CTF_LOCK 1
+ENV SPM_REVISION latest
 ENV SPM_HTML_BROWSER 0
+RUN echo $TBX
 # Running SPM once with "function exit" tests the succesfull installation *and*
 # extracts the ctf archive which is necessary if singularity is going to be
 # used later on, because singularity containers are read-only.
 # Also, set +x on the entrypoint for non-root container invocations
-RUN wget --no-check-certificate --progress=bar:force -P /opt https://www.fil.ion.ucl.ac.uk/spm/download/restricted/utopia/spm12/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip \
- && unzip -q /opt/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip -d /opt \
- && rm -f /opt/spm${SPM_VERSION}_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip \
+RUN wget --no-check-certificate --progress=bar:force -P /opt https://www.fil.ion.ucl.ac.uk/spm/download/restricted/utopia/dev/tbx/spm${SPM_VERSION}_${SPM_REVISION}_tbx_Linux_${MATLAB_VERSION}.zip \
+ && unzip -q /opt/spm${SPM_VERSION}_${SPM_REVISION}_tbx_Linux_${MATLAB_VERSION}.zip -d /opt \
+ && rm -f /opt/spm${SPM_VERSION}_${SPM_REVISION}_tbx_Linux_${MATLAB_VERSION}.zip \
  && /opt/spm${SPM_VERSION}/spm${SPM_VERSION} function exit \
  && chmod +x /opt/spm${SPM_VERSION}/spm${SPM_VERSION}
 
