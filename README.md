@@ -7,7 +7,7 @@
 Docker is a container technology, performing operating-system-level
 virtualisation.
 
-[`https://www.docker.com/`](https://www.docker.com/)
+* [Docker](https://www.docker.com/)
 
 ### Singularity
 
@@ -16,19 +16,19 @@ operating-system-level virtualization. One of the main uses of
 Singularity is to bring containers and reproducibility to scientific
 computing and HPC.
 
-[`https://sylabs.io/singularity/`](https://sylabs.io/singularity/)  
-[`https://apptainer.org/`](https://apptainer.org/)
+* [SingularityCE](https://sylabs.io/singularity/)  
+* [Apptainer](https://apptainer.org/)
 
 ## SPM Containers
 
-Official SPM12 `Dockerfile` and `singularity.def` (using the Standalone SPM or Octave):
+Official SPM `Dockerfile` and `singularity.def` (using the Standalone SPM or Octave):
 
-### [Dockerfile](https://docs.docker.com/engine/reference/builder/) for [SPM12](https://www.fil.ion.ucl.ac.uk/software/spm12/)
+### [Dockerfile](https://docs.docker.com/engine/reference/builder/) for [SPM](https://www.fil.ion.ucl.ac.uk/software/spm12/)
 
 * [Dockerfile](https://github.com/spm/spm-docker/blob/main/matlab/Dockerfile) using [SPM Standalone](https://www.wikibooks.org/wiki/SPM/Standalone) and [MATLAB Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html)
 * [Dockerfile](https://github.com/spm/spm-docker/blob/main/octave/Dockerfile) using [GNU Octave](https://www.octave.org/)
 
-### [Singularity Definition File](https://sylabs.io/guides/3.5/user-guide/definition_files.html) for [SPM12](https://www.fil.ion.ucl.ac.uk/software/spm12/)
+### [Singularity Definition File](https://sylabs.io/guides/3.5/user-guide/definition_files.html) for [SPM](https://www.fil.ion.ucl.ac.uk/software/spm12/)
 
 * [singularity.def](https://github.com/spm/spm-docker/blob/main/matlab/singularity.def) using [SPM Standalone](https://www.wikibooks.org/wiki/SPM/Standalone) and [MATLAB Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html)
 * [singularity.def](https://github.com/spm/spm-docker/blob/main/octave/singularity.def) using [GNU Octave](https://www.octave.org/)
@@ -47,6 +47,12 @@ docker pull ghcr.io/spm/spm-docker:docker-octave
 ```
 singularity pull oras://ghcr.io/spm/spm-docker:matlab
 singularity pull oras://ghcr.io/spm/spm-docker:octave
+```
+
+See also a [Docker image](https://github.com/spm/spm-docker/blob/main/tbx/Dockerfile) for SPM Standalone and selected [third-party toolboxes](https://github.com/spm-toolboxes/) with the MATLAB Runtime:
+
+```
+docker pull ghcr.io/spm/spm-docker:docker-tbx
 ```
 
 ## Usage
@@ -69,21 +75,21 @@ If the container\'s root filesystem is mounted as read only
 
 ### Neurodesk
 
-[`https://www.neurodesk.org/`](https://www.neurodesk.org/)
+[https://www.neurodesk.org/](https://www.neurodesk.org/)
 
 ### Neurodocker
 
-[`https://github.com/ReproNim/neurodocker`](https://github.com/ReproNim/neurodocker)  
-[`https://hub.docker.com/r/kaczmarj/neurodocker/`](https://hub.docker.com/r/kaczmarj/neurodocker/)
+[https://github.com/ReproNim/neurodocker](https://github.com/ReproNim/neurodocker)  
+[https://hub.docker.com/r/kaczmarj/neurodocker/](https://hub.docker.com/r/kaczmarj/neurodocker/)
 
 ### SPM BIDS-App
 
-[`https://github.com/BIDS-Apps/SPM`](https://github.com/BIDS-Apps/SPM)  
-[`https://hub.docker.com/r/bids/spm/`](https://hub.docker.com/r/bids/spm/)
+https://github.com/BIDS-Apps/SPM`](https://github.com/BIDS-Apps/SPM)  
+[https://hub.docker.com/r/bids/spm/](https://hub.docker.com/r/bids/spm/)
 
 ### MATLAB Dockerfile
 
-[`https://github.com/mathworks-ref-arch/matlab-dockerfile`](https://github.com/mathworks-ref-arch/matlab-dockerfile)
+[https://github.com/mathworks-ref-arch/matlab-dockerfile](https://github.com/mathworks-ref-arch/matlab-dockerfile)
 
 ### Singularity
 
