@@ -21,7 +21,7 @@ computing and HPC.
 
 ## SPM Containers
 
-Official SPM `Dockerfile` and `singularity.def` (using the Standalone SPM or Octave):
+Official SPM `Dockerfile` and `singularity.def` (using the [SPM Standalone](https://www.fil.ion.ucl.ac.uk/spm/docs/installation/standalone/) or [GNU Octave](https://www.octave.org/)):
 
 ### [Dockerfile](https://docs.docker.com/engine/reference/builder/) for [SPM](https://www.fil.ion.ucl.ac.uk/software/)
 
@@ -70,6 +70,10 @@ If the container\'s root filesystem is mounted as read only
 ```
 -v /tmp/.matlab:/root/.matlab
 ```
+
+## Documentation
+
+Check the [SPM online documentation](https://www.fil.ion.ucl.ac.uk/spm/docs/installation/containers/).
 
 ## See also
 
