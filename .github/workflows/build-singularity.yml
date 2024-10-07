@@ -20,64 +20,96 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        recipe: ["matlab/singularity.def", "octave/singularity.def"]
+        recipe: ["matlab", "octave"]
 
     name: Build ${{ matrix.recipe }}
     steps:
+    # Install Singularity
+    - name: Install Singularity
+      run: |
+        sudo apt-get update && sudo apt-get install -y singularity-container
 
-      - name: Check out code for the container build
-        uses: actions/checkout@v3
+    # Pull the Docker image with Singularity and convert it to a SIF file
+    - name: Build Singularity image from Docker
+      run: |
+        singularity pull ghcr.io/spm/spm-docker:docker-${{matrix.recipe}}
+        mv spm-docker_docker-${{matrix.recipe}}.sif container.sif
 
-      - name: Set up Go 1.18
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.18
-        id: go
+#     # Upload Singularity image as an artifact (optional)
+#     - name: Upload Singularity image
+#       uses: actions/upload-artifact@v3
+#       with:
+#         name: singularity-image
+#         path: container.sif
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update && sudo apt-get install -y \
-            build-essential \
-            libssl-dev \
-            uuid-dev \
-            libgpgme11-dev \
-            squashfs-tools \
-            libseccomp-dev \
-            pkg-config
+#     # Push Singularity OCI Image to GHCR (optional)
+#     - name: Push Singularity OCI Image
+#       run: |
+#         # Import the SIF as an OCI image and push it to GHCR
+#         singularity oci push ghcr.io/spm/spm-docker:docker-${{matrix.recipe}} container.sif
 
-      - name: Install Singularity
-        env:
-          SINGULARITY_VERSION: 3.10.0
-          GOPATH: /tmp/go
-        run: |
-          mkdir -p $GOPATH
-          sudo mkdir -p /usr/local/var/singularity/mnt && \
-          mkdir -p $GOPATH/src/github.com/sylabs && \
-          cd $GOPATH/src/github.com/sylabs && \
-          wget -qO- https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-ce-${SINGULARITY_VERSION}.tar.gz | \
-          tar xzv && \
-          cd singularity-ce-${SINGULARITY_VERSION} && \
-          ./mconfig -p /usr/local && \
-          make -C builddir && \
-          sudo make -C builddir install
+#     runs-on: ubuntu-latest
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         recipe: ["matlab/singularity.def", "octave/singularity.def"]
 
-      - name: Build Container
-        run: |
-         sudo -E singularity build spm12.sif ${{ matrix.recipe }}
+#     name: Build ${{ matrix.recipe }}
+#     steps:
 
-      - name: Test Container
-        run: |
-          singularity run spm12.sif --version
+#       - name: Check out code for the container build
+#         uses: actions/checkout@v3
 
-      - name: Login and Deploy Container
-        if: |
-          (github.event_name != 'pull_request') &&
-          (github.repository_owner == 'spm')
-        run: |
-          tag=$(basename $(dirname ${{ matrix.recipe }}))
-          if [ "$tag" == "" ]; then
-            tag=latest
-          fi
-          echo "Tag is $tag."
-          echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
-          singularity push spm12.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
+#       - name: Set up Go 1.18
+#         uses: actions/setup-go@v3
+#         with:
+#           go-version: 1.18
+#         id: go
+
+#       - name: Install Dependencies
+#         run: |
+#           sudo apt-get update && sudo apt-get install -y \
+#             build-essential \
+#             libssl-dev \
+#             uuid-dev \
+#             libgpgme11-dev \
+#             squashfs-tools \
+#             libseccomp-dev \
+#             pkg-config
+
+#       - name: Install Singularity
+#         env:
+#           SINGULARITY_VERSION: 3.10.0
+#           GOPATH: /tmp/go
+#         run: |
+#           mkdir -p $GOPATH
+#           sudo mkdir -p /usr/local/var/singularity/mnt && \
+#           mkdir -p $GOPATH/src/github.com/sylabs && \
+#           cd $GOPATH/src/github.com/sylabs && \
+#           wget -qO- https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-ce-${SINGULARITY_VERSION}.tar.gz | \
+#           tar xzv && \
+#           cd singularity-ce-${SINGULARITY_VERSION} && \
+#           ./mconfig -p /usr/local && \
+#           make -C builddir && \
+#           sudo make -C builddir install
+# hcr.io/spm/spm-docker:docker-matlab
+#       - name: Build Container
+#         run: |
+#          sudo -E singularity build spm12.sif ${{ matrix.recipe }}
+
+#       - name: Test Container
+#         run: |
+#           singularity run spm12.sif --version
+
+#       - name: Login and Deploy Container
+#         if: |
+#           (github.event_name != 'pull_request') &&
+#           (github.repository_owner == 'spm')
+#         run: |
+#           tag=$(basename $(dirname ${{ matrix.recipe }}))
+#           if [ "$tag" == "" ]; then
+#             tag=latest
+#           fi
+#           echo "Tag is $tag."
+#           echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
+#           singularity push spm12.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
