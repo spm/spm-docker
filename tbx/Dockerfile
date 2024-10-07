@@ -1,8 +1,9 @@
 FROM ubuntu:24.04
 
+ENV MATLAB_VERSION=R2024b
 ENV SPM_VERSION=24.10
 ENV SPM_REVISION=alpha8
-ENV MATLAB_VERSION=R2024b
+ENV SPM_NAME=${SPM_VERSION}${SPM_REVISION:+.${SPM_REVISION}}
 
 
 LABEL org.opencontainers.image.authors="SPM <fil.spm@ucl.ac.uk>"
@@ -51,7 +52,6 @@ ENV MCR_INHIBIT_CTF_LOCK=1
 ENV SPM_HTML_BROWSER=0
 
  # Install SPM Standalone in /opt/spm/
-ENV SPM_NAME=${SPM_VERSION}${SPM_REVISION:+.${SPM_REVISION}}
 RUN echo $TBX
 # Running SPM once with "function exit" tests the succesfull installation *and*
 # extracts the ctf archive which is necessary if singularity is going to be
