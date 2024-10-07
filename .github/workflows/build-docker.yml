@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dockerfile: ["matlab/Dockerfile", "octave/Dockerfile", "tbx/Dockerfile"]
+        dockerfile: ["matlab/Dockerfile", "octave/Dockerfile"]
     
     name: Build ${{ matrix.dockerfile }}
     steps:
