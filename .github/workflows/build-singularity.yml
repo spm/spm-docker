@@ -32,7 +32,7 @@ jobs:
     # Pull the Docker image with Singularity and convert it to a SIF file
     - name: Build Singularity image from Docker
       run: |
-        singularity pull ghcr.io/spm/spm-docker:docker-${{matrix.recipe}}
+        singularity pull docker://ghcr.io/spm/spm-docker:docker-${{matrix.recipe}}
         mv spm-docker_docker-${{matrix.recipe}}.sif container.sif
 
 #     # Upload Singularity image as an artifact (optional)
