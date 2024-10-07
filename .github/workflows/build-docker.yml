@@ -1,13 +1,7 @@
 name: Build & Deploy Docker Containers
 on:
-  push:
-    branches:
-      - main
-
   release:
     types: [published]
-
-  pull_request:
 
   workflow_dispatch:
 
