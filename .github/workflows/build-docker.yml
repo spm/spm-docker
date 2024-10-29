@@ -34,7 +34,7 @@ jobs:
           docker build \
           --build-arg MATLAB_VERSION=${{ env.MATLAB_VERSION }} \
           --build-arg AGREE_TO_MATLAB_RUNTIME_LICENSE=${{ env.AGREE_TO_MATLAB_RUNTIME_LICENSE }} \
-          --build-arg SPM_VERSION=SPM${{ env.SPM_VERSION }} \
+          --build-arg SPM_VERSION=${{ env.SPM_VERSION }} \
           --build-arg SPM_RELEASE=${{ env.SPM_RELEASE }} \
           --build-arg SPM_REVISION=${{ env.SPM_REVISION }} \
           -f ${{ matrix.dockerfile }} \
