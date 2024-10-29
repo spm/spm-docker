@@ -1,9 +1,9 @@
-FROM containers.mathworks.com/matlab-runtime:r2024b
+FROM ubuntu:24.04
 
 ENV MATLAB_VERSION=R2024b
 ENV AGREE_TO_MATLAB_RUNTIME_LICENSE=yes
 ENV SPM_VERSION=24.10
-ENV SPM_REVISION=alpha8
+ENV SPM_REVISION=alpha5
 ENV SPM_NAME=${SPM_VERSION}${SPM_REVISION:+.${SPM_REVISION}}
 
 
@@ -27,7 +27,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
     /var/lib/apt/lists/* \
     /var/log/apt/term*
 
-ENV LD_LIBRARY_PATH=/opt/matlabruntime/${MATLAB_VERSION}/runtime/glnxa64:/opt/matlabruntime/${MATLAB_VERSION}/bin/glnxa64:/opt/matlabruntime/${MATLAB_VERSION}/sys/os/glnxa64:/opt/matlabruntime/${MATLAB_VERSION}/sys/opengl/lib/glnxa64:/opt/matlabruntime/${MATLAB_VERSION}/extern/bin/glnxa64
+ENV LD_LIBRARY_PATH=/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/os/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/opengl/lib/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/extern/bin/glnxa64
 ENV MCR_INHIBIT_CTF_LOCK=1
 ENV SPM_HTML_BROWSER=0
 
@@ -36,10 +36,11 @@ ENV SPM_HTML_BROWSER=0
 # extracts the ctf archive which is necessary if singularity is going to be
 # used later on, because singularity containers are read-only.
 # Also, set +x on the entrypoint for non-root container invocations
-RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/korbinian90/spm_actions/releases/download/${SPM_NAME}/spm_standalone_${SPM_NAME}_Linux_${MATLAB_VERSION}.zip \
+RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/spm/spm/releases/download/${SPM_NAME}/spm_standalone_${SPM_NAME}_Linux_${MATLAB_VERSION}.zip \
     && unzip -q /opt/spm_standalone_${SPM_NAME}_Linux_${MATLAB_VERSION}.zip -d /opt \
-    && mv /opt/spm_standalone_${SPM_NAME}_Linux_${MATLAB_VERSION} /opt/spm \
     && rm -f /opt/spm_standalone_${SPM_NAME}_Linux_${MATLAB_VERSION}.zip \
+    && mv /opt/spm_standalone /opt/spm \
+    && /opt/runtime_installer/Runtime_${MATLAB_VERSION}_for_spm_standalone_${SPM_NAME}.install -agreeToLicense ${AGREE_TO_MATLAB_RUNTIME_LICENSE} \
     && /opt/spm/spm12 function exit \
     && chmod +x /opt/spm/spm12
 
