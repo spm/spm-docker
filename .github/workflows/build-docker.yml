@@ -1,18 +1,17 @@
 name: Build & Deploy Docker Containers
 on:
-  release:
-    types: [published]
-
   workflow_dispatch:
-
-  schedule:
-    - cron: '0 0 1 * *'
+  repository_dispatch:
 
 jobs:
   build-test-deploy-docker:
     runs-on: ubuntu-latest
     env:
       registry: ghcr.io
+      MATLAB_VERSION: R2024b
+      AGREE_TO_MATLAB_RUNTIME_LICENSE: 'yes'
+      SPM_RELEASE: '24.10'
+      SPM_REVISION: alpha16
     strategy:
       fail-fast: false
       matrix:
@@ -24,16 +23,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create derived environment variables
+        run: |
+          echo "SPM_TAG=${SPM_RELEASE}${SPM_REVISION:+.${SPM_REVISION}}" >> $GITHUB_ENV
+          echo "SPM_VERSION=${SPM_RELEASE:0:2}" >> $GITHUB_ENV
+
       - name: Build Container
         run: |
-          tag=docker-$(basename $(dirname ${{ matrix.dockerfile }}))
-          docker build -f ${{ matrix.dockerfile }} -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${tag} .
+          tag=docker-$(basename $(dirname ${{ matrix.dockerfile }}))-${{ env.SPM_TAG }}
+          docker build \
+          --build-arg MATLAB_VERSION=${{ env.MATLAB_VERSION }} \
+          --build-arg AGREE_TO_MATLAB_RUNTIME_LICENSE=${{ env.AGREE_TO_MATLAB_RUNTIME_LICENSE }} \
+          --build-arg SPM_VERSION=SPM${{ env.SPM_VERSION }} \
+          --build-arg SPM_RELEASE=${{ env.SPM_RELEASE }} \
+          --build-arg SPM_REVISION=${{ env.SPM_REVISION }} \
+          -f ${{ matrix.dockerfile }} \
+          -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${tag} .
           docker images
 
       - name: Log in to GitHub Container Registry
-        if: |
-          (github.event_name != 'pull_request') &&
-          (github.repository_owner == 'spm')
+        if: ${{ github.repository_owner }} == 'spm'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.registry }}
@@ -41,8 +50,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Deploy Container
-        if: |
-          (github.event_name != 'pull_request') &&
-          (github.repository_owner == 'spm')
-        run: |
-          docker push ${{ env.registry }}/${GITHUB_REPOSITORY} --all-tags
+        if: ${{ github.repository_owner }} == 'spm'
+        run: docker push ${{ env.registry }}/${GITHUB_REPOSITORY} --all-tags

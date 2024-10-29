@@ -1,17 +1,18 @@
-FROM ubuntu:24.04
+FROM ubuntu:latest
 
-ENV MATLAB_VERSION=R2024b
-ENV AGREE_TO_MATLAB_RUNTIME_LICENSE=yes
-ENV SPM_VERSION=24.10
-ENV SPM_REVISION=alpha5
-ENV SPM_NAME=${SPM_VERSION}${SPM_REVISION:+.${SPM_REVISION}}
-
+ARG MATLAB_VERSION=R2024b
+ARG AGREE_TO_MATLAB_RUNTIME_LICENSE=yes
+ARG SPM_VERSION=24
+ARG SPM_RELEASE=24.10
+ARG SPM_REVISION=alpha16
+# Calculated
+ENV SPM_TAG=${SPM_RELEASE}${SPM_REVISION:+.${SPM_REVISION}}
 
 LABEL org.opencontainers.image.authors="SPM <fil.spm@ucl.ac.uk>"
 LABEL org.opencontainers.image.source="https://github.com/spm/spm-docker"
 LABEL org.opencontainers.image.url="https://www.fil.ion.ucl.ac.uk/spm/"
 LABEL org.opencontainers.image.documentation="https://www.fil.ion.ucl.ac.uk/spm/docs/"
-LABEL org.opencontainers.image.version="${SPM_VERSION}"
+LABEL org.opencontainers.image.version="${SPM_RELEASE}"
 LABEL org.opencontainers.image.revision="${SPM_REVISION}"
 LABEL org.opencontainers.image.vendor="Functional Imaging Laboratory"
 LABEL org.opencontainers.image.licenses="GPL-2.0+"
@@ -36,14 +37,14 @@ ENV SPM_HTML_BROWSER=0
 # extracts the ctf archive which is necessary if singularity is going to be
 # used later on, because singularity containers are read-only.
 # Also, set +x on the entrypoint for non-root container invocations
-RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/spm/spm/releases/download/${SPM_NAME}/spm_standalone_${SPM_NAME}_Linux_${MATLAB_VERSION}.zip \
-    && unzip -q /opt/spm_standalone_${SPM_NAME}_Linux_${MATLAB_VERSION}.zip -d /opt \
-    && rm -f /opt/spm_standalone_${SPM_NAME}_Linux_${MATLAB_VERSION}.zip \
+RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/spm/spm/releases/download/${SPM_TAG}/spm_standalone_${SPM_TAG}_Linux.zip \
+    && unzip -q /opt/spm_standalone_${SPM_TAG}_Linux.zip -d /opt \
+    && rm -f /opt/spm_standalone_${SPM_TAG}_Linux.zip \
     && mv /opt/spm_standalone /opt/spm \
-    && /opt/runtime_installer/Runtime_${MATLAB_VERSION}_for_spm_standalone_${SPM_NAME}.install -agreeToLicense ${AGREE_TO_MATLAB_RUNTIME_LICENSE} \
-    && /opt/spm/spm12 function exit \
-    && chmod +x /opt/spm/spm12
+    && /opt/runtime_installer/Runtime_${MATLAB_VERSION}_for_spm_standalone_${SPM_TAG}.install -agreeToLicense ${AGREE_TO_MATLAB_RUNTIME_LICENSE} \
+    && /opt/spm/spm${SPM_VERSION} function exit \
+    && chmod +x /opt/spm/spm${SPM_VERSION}
 
 # Configure entry point
-ENTRYPOINT ["/opt/spm/spm12"]
+ENTRYPOINT ["/opt/spm/spm${SPM_VERSION}"]
 CMD ["--help"]
