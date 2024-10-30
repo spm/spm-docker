@@ -16,9 +16,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dockerfile: ["matlab/Dockerfile", "octave/Dockerfile"]
+        recipe: ["matlab", "octave"]
     
-    name: Build ${{ matrix.dockerfile }}
+    name: Build ${{ matrix.recipe }}
     steps:
     
       - name: Set environment variables for repository_dispatch
@@ -39,14 +39,14 @@ jobs:
 
       - name: Build Container
         run: |
-          tag=docker-$(basename $(dirname ${{ matrix.dockerfile }}))-${{ env.SPM_TAG }}
+          tag=docker-${{ matrix.recipe }}-${{ env.SPM_TAG }}
           docker build \
           --build-arg MATLAB_VERSION=${{ env.MATLAB_VERSION }} \
           --build-arg AGREE_TO_MATLAB_RUNTIME_LICENSE=${{ env.AGREE_TO_MATLAB_RUNTIME_LICENSE }} \
           --build-arg SPM_VERSION=${{ env.SPM_VERSION }} \
           --build-arg SPM_RELEASE=${{ env.SPM_RELEASE }} \
           --build-arg SPM_REVISION=${{ env.SPM_REVISION }} \
-          -f ${{ matrix.dockerfile }} \
+          -f ${{ matrix.recipe }}\Dockerfile \
           -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${tag} .
           docker images
 
