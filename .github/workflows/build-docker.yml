@@ -69,10 +69,8 @@ jobs:
       - name: Set environment variables for repository_dispatch
         if: ${{ github.event_name == 'repository_dispatch' }}
         run: |
-          echo "MATLAB_VERSION=${{ github.event.client_payload.matlab_version }}" >> $GITHUB_ENV
-          echo "AGREE_TO_MATLAB_RUNTIME_LICENSE=${{ github.event.client_payload.agree_to_matlab_runtime_license }}" >> $GITHUB_ENV
-          echo "SPM_RELEASE=${{ github.event.client_payload.spm_release }}" >> $GITHUB_ENV
-          echo "SPM_REVISION=${{ github.event.client_payload.spm_revision }}" >> $GITHUB_ENV
+          SPM_RELEASE=${{ github.event.client_payload.spm_release }}
+          SPM_REVISION=${{ github.event.client_payload.spm_revision }}
           echo "SPM_TAG=${SPM_RELEASE}${SPM_REVISION:+.${SPM_REVISION}}" >> $GITHUB_ENV
 
       - name: Trigger workflow in spm-docker
