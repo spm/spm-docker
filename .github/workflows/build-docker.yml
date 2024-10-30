@@ -46,7 +46,7 @@ jobs:
           --build-arg SPM_VERSION=${{ env.SPM_VERSION }} \
           --build-arg SPM_RELEASE=${{ env.SPM_RELEASE }} \
           --build-arg SPM_REVISION=${{ env.SPM_REVISION }} \
-          -f ${{ matrix.recipe }}\Dockerfile \
+          -f ${{ matrix.recipe }}/Dockerfile \
           -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${tag} \
           -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${latest_tag} .
 
