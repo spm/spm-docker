@@ -7,6 +7,8 @@ on:
 jobs:
   build-test-deploy-singularity:
     runs-on: ubuntu-latest
+    container:
+      image: quay.io/singularity/singularity:v3.8.3
     env:
       SPM_TAG: "24.10.alpha21"
     strategy:
@@ -20,9 +22,6 @@ jobs:
     - name: Set environment variables for repository_dispatch
       if: ${{ github.event_name == 'repository_dispatch' }}
       run: echo "SPM_TAG=${{ github.event.client_payload.spm_tag }}" >> $GITHUB_ENV
-
-    - name: Install Singularity
-      uses: singularityhub/install-singularity@main
 
     # Pull the Docker image with Singularity and convert it to a SIF file
     - name: Build Singularity image from Docker
