@@ -18,7 +18,7 @@ LABEL org.opencontainers.image.title="Statistical Parametric Software"
 LABEL org.opencontainers.image.description="Analysis of brain imaging data sequences (fMRI, PET, EEG, MEG)"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
-        build-essential unzip zip java \
+        build-essential unzip zip default-jre \
     && apt-get clean \
     && rm -rf \
         /tmp/hsperfdata* \
