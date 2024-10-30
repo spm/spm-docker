@@ -41,7 +41,7 @@ jobs:
         latest_tag=singularity-${{ matrix.recipe }}-latest
         echo "Tag is $tag."
         echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
-        singularity push spm12.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
+        singularity push spm.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
         singularity push spm.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${latest_tag}
 
     # Push Singularity OCI Image to GHCR (optional)
