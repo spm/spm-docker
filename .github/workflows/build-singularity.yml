@@ -28,9 +28,9 @@ jobs:
           singularity pull docker://ghcr.io/spm/spm-docker:docker-${{matrix.recipe}}-${{env.SPM_TAG}}
           mv spm-docker_docker-${{matrix.recipe}}-${{env.SPM_TAG}}.sif spm.sif
 
-      # - name: Test Container
-      #   run: |
-      #     singularity run spm.sif --version
+      - name: Test Container
+        run: |
+          singularity run spm.sif --version
 
       - name: Login and Deploy Container
         if: ${{ github.repository_owner }} == 'spm'
