@@ -28,11 +28,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 
 RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/spm/spm/releases/download/${SPM_TAG}/spm_${SPM_TAG}.zip \
     && unzip -q /opt/spm_${SPM_TAG}.zip -d /opt \
-    && rm -f /opt/spm_${SPM_TAG}.zip
-    RUN make -C /opt/spm/src PLATFORM=octave distclean 
-    RUN make -C /opt/spm/src PLATFORM=octave 
-    RUN make -C /opt/spm/src PLATFORM=octave install 
-    RUN ln -s "/opt/spm/bin/spm-octave /usr/local/bin/spm${SPM_VERSION}"
+    && rm -f /opt/spm_${SPM_TAG}.zip \
+    && make -C /opt/spm/src PLATFORM=octave distclean \
+    && make -C /opt/spm/src PLATFORM=octave \
+    && make -C /opt/spm/src PLATFORM=octave install \
+    && ln -s "/opt/spm/bin/spm-octave /usr/local/bin/spm${SPM_VERSION}"
 
     # TODO octave patch required?
     # RUN curl -SL https://raw.githubusercontent.com/spm/spm-octave/main/spm12_r7771.patch \
