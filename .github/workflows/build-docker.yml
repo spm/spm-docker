@@ -12,7 +12,7 @@ jobs:
       MATLAB_VERSION: R2024b
       AGREE_TO_MATLAB_RUNTIME_LICENSE: "yes"
       SPM_RELEASE: "24.10"
-      SPM_REVISION: alpha16
+      SPM_REVISION: alpha22
     strategy:
       fail-fast: false
       matrix:
