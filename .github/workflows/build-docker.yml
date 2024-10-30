@@ -62,11 +62,24 @@ jobs:
         if: ${{ github.repository_owner }} == 'spm'
         run: docker push ${{ env.registry }}/${GITHUB_REPOSITORY} --all-tags
 
+  trigger-singularity-build:
+    runs-on: ubuntu-latest
+    needs: build-test-deploy-docker
+    steps:
+      - name: Set environment variables for repository_dispatch
+        if: ${{ github.event_name == 'repository_dispatch' }}
+        run: |
+          echo "MATLAB_VERSION=${{ github.event.client_payload.matlab_version }}" >> $GITHUB_ENV
+          echo "AGREE_TO_MATLAB_RUNTIME_LICENSE=${{ github.event.client_payload.agree_to_matlab_runtime_license }}" >> $GITHUB_ENV
+          echo "SPM_RELEASE=${{ github.event.client_payload.spm_release }}" >> $GITHUB_ENV
+          echo "SPM_REVISION=${{ github.event.client_payload.spm_revision }}" >> $GITHUB_ENV
+          echo "SPM_TAG=${SPM_RELEASE}${SPM_REVISION:+.${SPM_REVISION}}" >> $GITHUB_ENV
+
       - name: Trigger workflow in spm-docker
         uses: peter-evans/repository-dispatch@v3
         with:
           event-type: trigger-singularity-build
           client-payload: |-
             {
-              "spm_tag": "${{ env.SPM_TAG }}",
+              "spm_tag": "${{ env.SPM_TAG }}"
             }
