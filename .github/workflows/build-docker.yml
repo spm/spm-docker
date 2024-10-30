@@ -40,6 +40,7 @@ jobs:
       - name: Build Container
         run: |
           tag=docker-${{ matrix.recipe }}-${{ env.SPM_TAG }}
+          latest_tag=docker-${{ matrix.recipe }}-latest
           docker build \
           --build-arg MATLAB_VERSION=${{ env.MATLAB_VERSION }} \
           --build-arg AGREE_TO_MATLAB_RUNTIME_LICENSE=${{ env.AGREE_TO_MATLAB_RUNTIME_LICENSE }} \
@@ -47,8 +48,8 @@ jobs:
           --build-arg SPM_RELEASE=${{ env.SPM_RELEASE }} \
           --build-arg SPM_REVISION=${{ env.SPM_REVISION }} \
           -f ${{ matrix.recipe }}\Dockerfile \
-          -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${tag} .
-          docker images
+          -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${tag} \
+          -t ${{ env.registry }}/${GITHUB_REPOSITORY}:${latest_tag} .
 
       - name: Log in to GitHub Container Registry
         if: ${{ github.repository_owner }} == 'spm'
