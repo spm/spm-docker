@@ -32,7 +32,7 @@ RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/
     && make -C /opt/spm/src PLATFORM=octave distclean \
     && make -C /opt/spm/src PLATFORM=octave \
     && make -C /opt/spm/src PLATFORM=octave install \
-    && ln -s "/opt/spm/bin/spm-octave /usr/local/bin/spm"
+    && ln -s /opt/spm/bin/spm-octave /usr/local/bin/spm
 
     # TODO octave patch required?
     # RUN curl -SL https://raw.githubusercontent.com/spm/spm-octave/main/spm12_r7771.patch \
