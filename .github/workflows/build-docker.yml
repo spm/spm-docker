@@ -10,17 +10,16 @@ jobs:
     env: # default settings (overwritten by repository_dispatch)
       registry: ghcr.io
       MATLAB_VERSION: R2024b
-      AGREE_TO_MATLAB_RUNTIME_LICENSE: 'yes'
-      SPM_RELEASE: '24.10'
+      AGREE_TO_MATLAB_RUNTIME_LICENSE: "yes"
+      SPM_RELEASE: "24.10"
       SPM_REVISION: alpha16
     strategy:
       fail-fast: false
       matrix:
         recipe: ["matlab", "octave"]
-    
+
     name: Build ${{ matrix.recipe }}
     steps:
-    
       - name: Set environment variables for repository_dispatch
         if: ${{ github.event_name == 'repository_dispatch' }}
         run: |
@@ -58,7 +57,16 @@ jobs:
           registry: ${{ env.registry }}
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Deploy Container
         if: ${{ github.repository_owner }} == 'spm'
         run: docker push ${{ env.registry }}/${GITHUB_REPOSITORY} --all-tags
+
+      - name: Trigger workflow in spm-docker
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: trigger-singularity-build
+          client-payload: |-
+            {
+              "spm_tag": "${{ env.SPM_TAG }}",
+            }

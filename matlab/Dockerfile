@@ -43,8 +43,9 @@ RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/
     && mv /opt/spm_standalone /opt/spm \
     && /opt/runtime_installer/Runtime_${MATLAB_VERSION}_for_spm_standalone_${SPM_TAG}.install -agreeToLicense ${AGREE_TO_MATLAB_RUNTIME_LICENSE} \
     && /opt/spm/spm${SPM_VERSION} function exit \
-    && chmod +x /opt/spm/spm${SPM_VERSION}
+    && chmod +x /opt/spm/spm${SPM_VERSION} \
+    && ln -s "/opt/spm/spm${SPM_VERSION} /usr/local/bin/spm"
 
 # Configure entry point
-ENTRYPOINT ["/opt/spm/spm${SPM_VERSION}"]
+ENTRYPOINT ["/usr/local/bin/spm"]
 CMD ["--help"]

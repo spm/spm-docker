@@ -2,7 +2,7 @@ FROM gnuoctave/octave:latest
 
 ARG SPM_VERSION=24
 ARG SPM_RELEASE=24.10
-ARG SPM_REVISION=alpha16
+ARG SPM_REVISION=alpha21
 # Calculated
 ENV SPM_TAG=${SPM_RELEASE}${SPM_REVISION:+.${SPM_REVISION}}
 
@@ -32,14 +32,14 @@ RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/
     && make -C /opt/spm/src PLATFORM=octave distclean \
     && make -C /opt/spm/src PLATFORM=octave \
     && make -C /opt/spm/src PLATFORM=octave install \
-    && ln -s "/opt/spm/bin/spm-octave /usr/local/bin/spm${SPM_VERSION}"
+    && ln -s "/opt/spm/bin/spm-octave /usr/local/bin/spm"
 
     # TODO octave patch required?
     # RUN curl -SL https://raw.githubusercontent.com/spm/spm-octave/main/spm12_r7771.patch \
     #  | patch -p0 
 
-RUN octave --no-gui --eval "addpath ('/opt/spm${SPM_VERSION}'); savepath ();"
+RUN octave --no-gui --eval "addpath ('/opt/spm'); savepath ();"
 
-ENTRYPOINT ["spm${SPM_VERSION}"]
+ENTRYPOINT ["spm"]
 
 CMD ["--help"]
