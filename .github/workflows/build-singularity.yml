@@ -8,7 +8,7 @@ jobs:
   build-test-deploy-singularity:
     runs-on: ubuntu-latest
     container:
-      image: quay.io/singularity/singularity:v3.8.3
+      image: quay.io/singularity/singularity:v4.1.0
     env:
       SPM_TAG: "24.10.alpha21"
     strategy:
@@ -41,15 +41,6 @@ jobs:
         echo "Tag is $tag."
         echo "GITHUB_REPOSITORY is $GITHUB_REPOSITORY."
 
-        singularity remote add oras ghcr.io
-
         echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
         singularity push spm.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
         singularity push spm.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${latest_tag}
-
-    # Push Singularity OCI Image to GHCR (optional)
-    - name: Push Singularity OCI Image
-      run: |
-        # Import the SIF as an OCI image and push it to GHCR
-        tag=singularity-${{ matrix.recipe }}-${{ env.SPM_TAG }}
-        singularity oci push ghcr.io/spm/spm-docker:oci-${tag} container.sif
