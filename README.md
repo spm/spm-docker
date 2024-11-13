@@ -1,65 +1,26 @@
 # SPM Containers
 
-## Technology
+This repository provides github action workflows for automatic docker and singularity image creation. They are triggered by releasing a new SPM version.
 
-### Docker
+## Containers
 
-Docker is a container technology, performing operating-system-level
-virtualisation.
+The containers are hosted on the [**GitHub Container Registry**](https://github.com/spm/spm-docker/pkgs/container/spm-docker)
 
-* [Docker](https://www.docker.com/)
-
-### Singularity
-
-Singularity is another container technology that performs
-operating-system-level virtualization. One of the main uses of
-Singularity is to bring containers and reproducibility to scientific
-computing and HPC.
-
-* [SingularityCE](https://sylabs.io/singularity/)  
-* [Apptainer](https://apptainer.org/)
-
-## SPM Containers
-
-Official SPM `Dockerfile` and `singularity.def` (using the [SPM Standalone](https://www.fil.ion.ucl.ac.uk/spm/docs/installation/standalone/) or [GNU Octave](https://www.octave.org/)):
-
-### [Dockerfile](https://docs.docker.com/engine/reference/builder/) for [SPM](https://www.fil.ion.ucl.ac.uk/software/)
-
-* [Dockerfile](https://github.com/spm/spm-docker/blob/main/matlab/Dockerfile) using [SPM Standalone](https://www.fil.ion.ucl.ac.uk/spm/docs/installation/standalone/) and [MATLAB Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html)
-* [Dockerfile](https://github.com/spm/spm-docker/blob/main/octave/Dockerfile) using [GNU Octave](https://www.octave.org/)
-
-### [Singularity Definition File](https://sylabs.io/guides/3.5/user-guide/definition_files.html) for [SPM](https://www.fil.ion.ucl.ac.uk/software/)
-
-* [singularity.def](https://github.com/spm/spm-docker/blob/main/matlab/singularity.def) using [SPM Standalone](https://www.fil.ion.ucl.ac.uk/spm/docs/installation/standalone/) and [MATLAB Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html)
-* [singularity.def](https://github.com/spm/spm-docker/blob/main/octave/singularity.def) using [GNU Octave](https://www.octave.org/)
-
-## Container Registry
-
-Pre-built images are available from [GitHub Packages](https://github.com/spm/spm-docker/pkgs/container/spm-docker):
-
-* [GitHub Packages Container registry](https://ghcr.io/)
-
-```
+```bash
 docker pull ghcr.io/spm/spm-docker:docker-matlab
 docker pull ghcr.io/spm/spm-docker:docker-octave
 ```
 
-```
-singularity pull oras://ghcr.io/spm/spm-docker:matlab
-singularity pull oras://ghcr.io/spm/spm-docker:octave
-```
-
-See also a [Docker image](https://github.com/spm/spm-docker/blob/main/tbx/Dockerfile) for SPM Standalone and selected [third-party toolboxes](https://github.com/spm-toolboxes/) with the MATLAB Runtime:
-
-```
-docker pull ghcr.io/spm/spm-docker:docker-tbx
+```bash
+singularity pull oras://ghcr.io/spm/spm-docker:singularity-matlab
+singularity pull oras://ghcr.io/spm/spm-docker:singularity-octave
 ```
 
 ## Usage
 
 For example, to start SPM with its graphical user interface, use the following:
 
-```
+```bash
 xhost +local:docker  
 docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp:/tmp -v /tmp/.X11-unix:/tmp/.X11-unix ghcr.io/spm/spm-docker:docker-matlab fmri
 ```
@@ -67,9 +28,33 @@ docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp:/tmp -v /tmp/.X11-unix:/tmp/.X11
 If the container\'s root filesystem is mounted as read only
 (`--read-only` flag), you need to bind mount an extra volume:
 
-```
+```bash
 -v /tmp/.matlab:/root/.matlab
 ```
+
+## Technology
+
+### Docker
+
+[Docker](https://www.docker.com/) is a container technology, performing operating-system-level
+virtualisation.
+
+### Singularity
+
+Singularity is another container technology that performs operating-system-level virtualization. One of the main uses of Singularity is to bring containers and reproducibility to scientific computing and HPC.
+
+* [SingularityCE](https://sylabs.io/singularity/)
+* [Apptainer](https://apptainer.org/)
+
+## SPM Containers Creation
+
+The official SPM `Dockerfiles`:
+
+* [Dockerfile](https://github.com/spm/spm-docker/blob/main/matlab/Dockerfile) using the [SPM Standalone](https://www.fil.ion.ucl.ac.uk/spm/docs/installation/standalone/)
+* [Dockerfile](https://github.com/spm/spm-docker/blob/main/octave/Dockerfile) using [GNU Octave](https://www.octave.org/)
+* [Dockerfile](https://github.com/spm/spm-docker/blob/main/matlab/Dockerfile) using the [SPM Standalone](https://www.fil.ion.ucl.ac.uk/spm/docs/installation/standalone/) and selected [third-party toolboxes](https://github.com/spm-toolboxes/) (outdated)
+
+The singularity `sif` images are created from the docker images.
 
 ## Documentation
 
@@ -99,7 +84,7 @@ https://github.com/BIDS-Apps/SPM`](https://github.com/BIDS-Apps/SPM)
 
 [SingularityCE User Guide](https://sylabs.io/guides/3.8/user-guide/)
 
-```
+```bash
 sudo singularity build spm12.sif spm12-octave.def
 singularity exec spm12.sif
 ./spm12.sif --help
@@ -112,7 +97,7 @@ Ubuntu](https://github.com/hpcng/singularity/issues/5390#issuecomment-899111181)
 
 SPM Docker images used to be hosted on Docker Hub but this is now deprecated and the GitHub Packages Container Registry should be used instead.
 
-```
+```bash
 docker pull spmcentral/spm:latest
 docker pull spmcentral/spm:octave
 ```
