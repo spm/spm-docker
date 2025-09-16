@@ -7,13 +7,13 @@ This repository provides github action workflows for automatic docker and singul
 The containers are hosted on the [**GitHub Container Registry**](https://github.com/spm/spm-docker/pkgs/container/spm-docker)
 
 ```bash
-docker pull ghcr.io/spm/spm-docker:docker-matlab
-docker pull ghcr.io/spm/spm-docker:docker-octave
+docker pull ghcr.io/spm/spm-docker:docker-matlab-latest
+docker pull ghcr.io/spm/spm-docker:docker-octave-latest
 ```
 
 ```bash
-singularity pull oras://ghcr.io/spm/spm-docker:singularity-matlab
-singularity pull oras://ghcr.io/spm/spm-docker:singularity-octave
+singularity pull oras://ghcr.io/spm/spm-docker:singularity-matlab-latest
+singularity pull oras://ghcr.io/spm/spm-docker:singularity-octave-latest
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ For example, to start SPM with its graphical user interface, use the following:
 
 ```bash
 xhost +local:docker  
-docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp:/tmp -v /tmp/.X11-unix:/tmp/.X11-unix ghcr.io/spm/spm-docker:docker-matlab fmri
+docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp:/tmp -v /tmp/.X11-unix:/tmp/.X11-unix ghcr.io/spm/spm-docker:docker-matlab-latest fmri
 ```
 
 If the container\'s root filesystem is mounted as read only
