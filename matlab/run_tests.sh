@@ -140,7 +140,10 @@ for TEST_NAME in "${TESTS[@]}"; do
         fi
     fi
 
-    printf "  %-55s" "$TEST_NAME ..."
+    # A newline rather than a padded printf: without it the progress line sits
+    # unflushed until a result is appended, so in a CI log a hung test looks
+    # identical to one that never started.
+    echo "  ${TEST_NAME} ..."
 
     EXPR="r=spm_tests('test','${TEST_NAME}','verbose',0); \
 p=sum([r.Passed]); f=sum([r.Failed]); inc=sum([r.Incomplete]); \
@@ -160,15 +163,48 @@ try, \
 catch err, fprintf('  (no diagnostic: %s)\n',err.message); end; \
 end; end; exit(0);"
 
+    # Run detached and poll, rather than "timeout docker run".
+    #
+    # With an attached CLI, timeout sends SIGTERM to the docker client, which
+    # forwards it to the container and then waits. A MATLAB Runtime process
+    # blocked on a graphics call ignores SIGTERM, so the client never exits,
+    # timeout never escalates (there is no second signal without --kill-after),
+    # and the surrounding $( ) blocks forever because the pipe stays open. The
+    # runner would then hang on precisely the tests it exists to catch.
+    #
+    # Detached, nothing is attached to the container's lifetime: the deadline is
+    # enforced here and "rm -f" is an immediate SIGKILL with no grace period.
     CONTAINER="spm_test_${TEST_NAME}_$$"
-    OUTPUT=$(timeout "$TIMEOUT_SECS" "$DOCKER" run --rm --name "$CONTAINER" \
-        "${MOUNT[@]}" "$IMAGE" eval "$EXPR" 2>&1)
-    EXIT_CODE=$?
+    "$DOCKER" rm -f "$CONTAINER" >/dev/null 2>&1 || true
 
-    if [[ $EXIT_CODE -eq 124 ]]; then
+    if ! "$DOCKER" run -d --name "$CONTAINER" "${MOUNT[@]}" "$IMAGE" \
+            eval "$EXPR" >/dev/null 2>&1; then
+        echo "      ERROR (could not start container)"
+        FAILED=$((FAILED + 1))
+        FAILED_LIST+=("$TEST_NAME  [START FAILED]")
+        "$DOCKER" rm -f "$CONTAINER" >/dev/null 2>&1 || true
+        continue
+    fi
+
+    ELAPSED=0
+    TIMED_OUT=false
+    while true; do
+        STATE=$("$DOCKER" inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null || echo false)
+        [[ "$STATE" != "true" ]] && break
+        if (( ELAPSED >= TIMEOUT_SECS )); then
+            TIMED_OUT=true
+            break
+        fi
+        sleep 2
+        ELAPSED=$((ELAPSED + 2))
+    done
+
+    OUTPUT=$("$DOCKER" logs "$CONTAINER" 2>&1)
+    "$DOCKER" rm -f "$CONTAINER" >/dev/null 2>&1 || true
+
+    if [[ "$TIMED_OUT" == true ]]; then
         # Almost always a blocked graphics call: figure(), uiwait(), spm_input()
-        "$DOCKER" stop "$CONTAINER" >/dev/null 2>&1
-        echo "TIMEOUT (likely a graphics/GUI call)"
+        echo "      TIMEOUT (likely a graphics/GUI call)"
         TIMEDOUT=$((TIMEDOUT + 1))
         FAILED_LIST+=("$TEST_NAME  [TIMEOUT]")
         OUTPUT="EXCEPTION: timed out after ${TIMEOUT_SECS}s"
@@ -178,18 +214,18 @@ end; end; exit(0);"
         INC_COUNT=$(echo  "$RESULT_LINE" | sed -n 's/.* incomplete=\([0-9]*\).*/\1/p')
 
         if [[ -z "$RESULT_LINE" ]]; then
-            echo "CRASHED (no result line)"
+            echo "      CRASHED (no result line)"
             FAILED=$((FAILED + 1))
             FAILED_LIST+=("$TEST_NAME  [CRASHED]")
         elif [[ "${FAIL_COUNT:-0}" -gt 0 ]]; then
-            echo "FAILED"
+            echo "      FAILED"
             FAILED=$((FAILED + 1))
             FAILED_LIST+=("$TEST_NAME  [${FAIL_COUNT} failed, ${INC_COUNT:-0} incomplete]")
         elif [[ "${INC_COUNT:-0}" -gt 0 ]]; then
-            echo "ok (${INC_COUNT} incomplete)"
+            echo "      ok (${INC_COUNT} incomplete)"
             PASSED=$((PASSED + 1))
         else
-            echo "ok"
+            echo "      ok"
             PASSED=$((PASSED + 1))
         fi
     fi
