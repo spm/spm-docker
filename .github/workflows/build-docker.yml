@@ -56,7 +56,8 @@ jobs:
         run: |
           [ -n "${{ inputs.matlab_version }}" ] && echo "MATLAB_VERSION=${{ inputs.matlab_version }}" >> $GITHUB_ENV
           [ -n "${{ inputs.spm_release }}"    ] && echo "SPM_RELEASE=${{ inputs.spm_release }}"       >> $GITHUB_ENV
-          [ -n "${{ inputs.spm_revision }}"   ] && echo "SPM_REVISION=${{ inputs.spm_revision }}"     >> $GITHUB_ENV
+          # An empty revision for a given release means a final release
+          [ -n "${{ inputs.spm_release }}${{ inputs.spm_revision }}" ] && echo "SPM_REVISION=${{ inputs.spm_revision }}" >> $GITHUB_ENV
           echo "TESTS_MODE=${{ inputs.tests }}" >> $GITHUB_ENV
           exit 0
 
