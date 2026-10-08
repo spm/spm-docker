@@ -79,6 +79,13 @@ jobs:
           echo "SPM_TAG=${SPM_TAG}" >> $GITHUB_ENV
           echo "SPM_VERSION=${SPM_RELEASE:0:2}" >> $GITHUB_ENV
           echo "IMAGE=${{ env.registry }}/${GITHUB_REPOSITORY}:docker-${{ matrix.recipe }}-${SPM_TAG}" >> $GITHUB_ENV
+          # Only a final release moves "latest". A third part that starts with a
+          # letter (26.10.rc1) marks a pre-release, as in the SPM release workflow.
+          case "$SPM_TAG" in
+            [0-9][0-9].[0-9][0-9].[A-Za-z]*) LATEST="" ;;
+            *) LATEST="-t ${{ env.registry }}/${GITHUB_REPOSITORY}:docker-${{ matrix.recipe }}-latest" ;;
+          esac
+          echo "LATEST_TAG=${LATEST}" >> $GITHUB_ENV
           echo "spm_tag=${SPM_TAG}" >> $GITHUB_OUTPUT
 
       # ---------------------------------------------------------------------
@@ -193,7 +200,7 @@ jobs:
             --build-arg SPM_REVISION=${{ env.SPM_REVISION }} \
             -f ${{ matrix.recipe }}/Dockerfile \
             -t ${{ env.IMAGE }} \
-            -t ${{ env.registry }}/${GITHUB_REPOSITORY}:docker-${{ matrix.recipe }}-latest .
+            ${{ env.LATEST_TAG }} .
 
       # ---------------------------------------------------------------------
       # Smoke test: does the image start SPM at all? Cheap, and it catches a

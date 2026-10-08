@@ -91,4 +91,8 @@ jobs:
           singularity remote add oras ghcr.io
           echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME || github.actor }} --password-stdin oras://ghcr.io
           singularity push spm.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
-          singularity push spm.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${latest_tag}
+          # Only a final release moves "latest" (see build-docker.yml)
+          case "${{ env.SPM_TAG }}" in
+            [0-9][0-9].[0-9][0-9].[A-Za-z]*) echo "Pre-release: $latest_tag is not moved." ;;
+            *) singularity push spm.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${latest_tag} ;;
+          esac
