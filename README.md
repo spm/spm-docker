@@ -29,8 +29,26 @@ If the container\'s root filesystem is mounted as read only
 (`--read-only` flag), you need to bind mount an extra volume:
 
 ```bash
--v /tmp/.matlab:/root/.matlab
+-v /tmp/.matlab:/home/spm/.matlab
 ```
+
+The folder on the host has to exist and be writable by the container user.
+
+### User inside the container
+
+The MATLAB container runs as an ordinary user (`spm`, uid 1000), not as root.
+To let SPM write its results to a mounted folder, run it as yourself:
+
+```bash
+docker run --rm --user $(id -u):$(id -g) -v /path/to/data:/data \
+  ghcr.io/spm/spm-docker:docker-matlab-latest batch /data/job.m
+```
+
+`--user root` is still possible, but figures do not work for root: without a
+display, the MATLAB Runtime draws the first figure and hangs on the next one.
+
+An image built `FROM` this one inherits the user. Switch to `USER root` for
+steps that install software, and back to `USER spm` afterwards.
 
 ## Testing
 
@@ -44,13 +62,19 @@ docker run --rm ghcr.io/spm/spm-docker:docker-matlab-latest test
 Some tests need the data from the private `spm/spm-tests-data` repository.
 Without it they report as *Incomplete*, which is not a failure. To supply it,
 bind mount a checkout over the `tests/data` directory inside the container
-(`NN` is the SPM major version, e.g. `26`):
+(`NN` is the SPM major version, e.g. `26`). The tests write to that folder, so
+run the container as its owner:
 
 ```bash
-docker run --rm \
+docker run --rm --user $(id -u):$(id -g) \
   -v /path/to/spm-tests-data:/opt/spm/spmNN_mcr/spmNN/tests/data \
   ghcr.io/spm/spm-docker:docker-matlab-latest test
 ```
+
+To find a failing or hanging test, `matlab/run_tests.sh` runs each test file in
+its own container with a timeout. It prints the MATLAB output of every test
+that does not pass, and in a GitHub Actions log of every test, one folded
+section per test file.
 
 ### Why the octave image only gets a smoke test
 

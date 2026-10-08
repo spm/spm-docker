@@ -75,6 +75,13 @@ else
 fi
 echo ""
 
+# Run as the calling user, so that tests can write to the mounted test data.
+# Images without a default user only work as root, so leave those alone.
+RUN_AS=()
+if [[ -n "$("$DOCKER" image inspect -f '{{.Config.User}}' "$IMAGE" 2>/dev/null)" ]]; then
+    RUN_AS=(--user "$(id -u):$(id -g)")
+fi
+
 # -- Build the test list from the image, not from a source checkout -----------
 mapfile -t ALL_TESTS < <(
     "$DOCKER" run --rm --entrypoint sh "$IMAGE" -c \
@@ -130,6 +137,14 @@ FAILED_LIST=()
 SKIPPING_UNTIL=false
 [[ -n "$START_FROM" ]] && SKIPPING_UNTIL=true
 
+# Print a test's MATLAB output below its status line, folded in a GitHub Actions log
+show_output() {
+    [[ -n "${GITHUB_ACTIONS:-}" ]] && echo "::group::Output of $TEST_NAME"
+    echo "$OUTPUT" | sed 's/^/      | /'
+    [[ -n "${GITHUB_ACTIONS:-}" ]] && echo "::endgroup::"
+    return 0
+}
+
 for TEST_NAME in "${TESTS[@]}"; do
     if [[ "$SKIPPING_UNTIL" == true ]]; then
         if [[ "$TEST_NAME" == "$START_FROM" ]]; then
@@ -145,7 +160,8 @@ for TEST_NAME in "${TESTS[@]}"; do
     # identical to one that never started.
     echo "  ${TEST_NAME} ..."
 
-    EXPR="r=spm_tests('test','${TEST_NAME}','verbose',0); \
+    # Verbosity 3 names each test method as it starts, which locates a hang
+    EXPR="r=spm_tests('test','${TEST_NAME}','verbose',3); \
 p=sum([r.Passed]); f=sum([r.Failed]); inc=sum([r.Incomplete]); \
 fprintf('RESULT: passed=%d failed=%d incomplete=%d\n',p,f,inc); \
 for j=1:numel(r), if r(j).Failed||r(j).Incomplete, \
@@ -177,7 +193,7 @@ end; end; exit(0);"
     CONTAINER="spm_test_${TEST_NAME}_$$"
     "$DOCKER" rm -f "$CONTAINER" >/dev/null 2>&1 || true
 
-    if ! "$DOCKER" run -d --name "$CONTAINER" "${MOUNT[@]}" "$IMAGE" \
+    if ! "$DOCKER" run -d --name "$CONTAINER" "${RUN_AS[@]}" "${MOUNT[@]}" "$IMAGE" \
             eval "$EXPR" >/dev/null 2>&1; then
         echo "      ERROR (could not start container)"
         FAILED=$((FAILED + 1))
@@ -200,14 +216,18 @@ end; end; exit(0);"
     done
 
     OUTPUT=$("$DOCKER" logs "$CONTAINER" 2>&1)
+    PROCESSES=""
+    [[ "$TIMED_OUT" == true ]] && PROCESSES=$("$DOCKER" top "$CONTAINER" 2>&1)
     "$DOCKER" rm -f "$CONTAINER" >/dev/null 2>&1 || true
 
+    PASSING=false
     if [[ "$TIMED_OUT" == true ]]; then
         # Almost always a blocked graphics call: figure(), uiwait(), spm_input()
         echo "      TIMEOUT (likely a graphics/GUI call)"
         TIMEDOUT=$((TIMEDOUT + 1))
         FAILED_LIST+=("$TEST_NAME  [TIMEOUT]")
-        OUTPUT="EXCEPTION: timed out after ${TIMEOUT_SECS}s"
+        OUTPUT=$(printf '%s\nEXCEPTION: timed out after %ss\nProcesses in the container at the timeout:\n%s' \
+            "$OUTPUT" "$TIMEOUT_SECS" "$PROCESSES")
     else
         RESULT_LINE=$(echo "$OUTPUT" | grep '^RESULT:')
         FAIL_COUNT=$(echo "$RESULT_LINE" | sed -n 's/.* failed=\([0-9]*\).*/\1/p')
@@ -224,11 +244,16 @@ end; end; exit(0);"
         elif [[ "${INC_COUNT:-0}" -gt 0 ]]; then
             echo "      ok (${INC_COUNT} incomplete)"
             PASSED=$((PASSED + 1))
+            PASSING=true
         else
             echo "      ok"
             PASSED=$((PASSED + 1))
+            PASSING=true
         fi
     fi
+
+    # The output of a passing test is only shown where the log can fold it
+    [[ "$PASSING" == true && -z "${GITHUB_ACTIONS:-}" ]] || show_output
 
     {
         echo "===TEST_FILE: $TEST_NAME==="
