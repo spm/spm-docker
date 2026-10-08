@@ -129,8 +129,13 @@ jobs:
           fi
           trap 'docker stop spm_tests_all >/dev/null 2>&1 || true' EXIT
           set -o pipefail
-          # As the calling user, so that tests can write to the mounted test data
-          docker run --rm --name spm_tests_all --user "$(id -u):$(id -g)" $MOUNT ${{ env.IMAGE }} test | tee suite.log
+          # As the calling user, so that tests can write to the mounted test data.
+          # Images without a default user only work as root, so leave those alone.
+          RUN_AS=""
+          if [ -n "$(docker image inspect -f '{{.Config.User}}' ${{ env.IMAGE }})" ]; then
+            RUN_AS="--user $(id -u):$(id -g)"
+          fi
+          docker run --rm --name spm_tests_all $RUN_AS $MOUNT ${{ env.IMAGE }} test | tee suite.log
 
       - name: Warn on skipped tests
         if: always()

@@ -75,8 +75,12 @@ else
 fi
 echo ""
 
-# Run as the calling user, so that tests can write to the mounted test data
-RUN_AS=(--user "$(id -u):$(id -g)")
+# Run as the calling user, so that tests can write to the mounted test data.
+# Images without a default user only work as root, so leave those alone.
+RUN_AS=()
+if [[ -n "$("$DOCKER" image inspect -f '{{.Config.User}}' "$IMAGE" 2>/dev/null)" ]]; then
+    RUN_AS=(--user "$(id -u):$(id -g)")
+fi
 
 # -- Build the test list from the image, not from a source checkout -----------
 mapfile -t ALL_TESTS < <(
