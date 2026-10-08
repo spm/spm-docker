@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 90
     container:
       image: quay.io/singularity/singularity:v3.8.3 # v4 cannot acces oras://ghcr.io
+      # Singularity cannot mount an image to run it without these privileges
+      options: --privileged
     env:
       SPM_TAG: "26.01.rc1"
     strategy:
@@ -70,17 +72,6 @@ jobs:
           singularity run --home /tmp/spmhome:/root spm.sif \
             eval "fprintf('SMOKE_OK %s\n', spm('Ver'));" | tee sif_smoke.log
           grep -q '^SMOKE_OK' sif_smoke.log
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: singularity-logs-${{ matrix.recipe }}-${{ env.SPM_TAG }}
-          path: |
-            sif.log
-            sif_smoke.log
-          if-no-files-found: ignore
-          retention-days: 30
 
       - name: Login and Deploy Container
         if: github.repository_owner == 'spm'
