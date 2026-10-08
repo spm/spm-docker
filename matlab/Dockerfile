@@ -47,6 +47,16 @@ RUN wget --no-check-certificate --progress=bar:force -P /opt https://github.com/
     && chmod +x /opt/spm/spm${SPM_VERSION} \
     && ln -s /opt/spm/spm${SPM_VERSION} /usr/local/bin/spm
 
+# The MATLAB Runtime's built-in display does not work for root, and figures
+# then hang, so the default user is an ordinary one. Its home is writable by
+# everyone, so that "docker run --user <uid>:<gid>" works for any user.
+RUN (userdel -r ubuntu 2>/dev/null || true) \
+    && useradd --create-home --uid 1000 --shell /bin/bash spm \
+    && chmod 1777 /home/spm
+ENV HOME=/home/spm
+USER spm
+WORKDIR /home/spm
+
 # Configure entry point
 ENTRYPOINT ["spm"]
 CMD ["--help"]

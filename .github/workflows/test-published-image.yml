@@ -129,7 +129,8 @@ jobs:
           fi
           trap 'docker stop spm_tests_all >/dev/null 2>&1 || true' EXIT
           set -o pipefail
-          docker run --rm --name spm_tests_all $MOUNT ${{ env.IMAGE }} test | tee suite.log
+          # As the calling user, so that tests can write to the mounted test data
+          docker run --rm --name spm_tests_all --user "$(id -u):$(id -g)" $MOUNT ${{ env.IMAGE }} test | tee suite.log
 
       - name: Warn on skipped tests
         if: always()
