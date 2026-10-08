@@ -130,6 +130,14 @@ FAILED_LIST=()
 SKIPPING_UNTIL=false
 [[ -n "$START_FROM" ]] && SKIPPING_UNTIL=true
 
+# Print a test's MATLAB output below its status line, folded in a GitHub Actions log
+show_output() {
+    [[ -n "${GITHUB_ACTIONS:-}" ]] && echo "::group::Output of $TEST_NAME"
+    echo "$OUTPUT" | sed 's/^/      | /'
+    [[ -n "${GITHUB_ACTIONS:-}" ]] && echo "::endgroup::"
+    return 0
+}
+
 for TEST_NAME in "${TESTS[@]}"; do
     if [[ "$SKIPPING_UNTIL" == true ]]; then
         if [[ "$TEST_NAME" == "$START_FROM" ]]; then
@@ -145,7 +153,8 @@ for TEST_NAME in "${TESTS[@]}"; do
     # identical to one that never started.
     echo "  ${TEST_NAME} ..."
 
-    EXPR="r=spm_tests('test','${TEST_NAME}','verbose',0); \
+    # Verbosity 3 names each test method as it starts, which locates a hang
+    EXPR="r=spm_tests('test','${TEST_NAME}','verbose',3); \
 p=sum([r.Passed]); f=sum([r.Failed]); inc=sum([r.Incomplete]); \
 fprintf('RESULT: passed=%d failed=%d incomplete=%d\n',p,f,inc); \
 for j=1:numel(r), if r(j).Failed||r(j).Incomplete, \
@@ -200,6 +209,8 @@ end; end; exit(0);"
     done
 
     OUTPUT=$("$DOCKER" logs "$CONTAINER" 2>&1)
+    PROCESSES=""
+    [[ "$TIMED_OUT" == true ]] && PROCESSES=$("$DOCKER" top "$CONTAINER" 2>&1)
     "$DOCKER" rm -f "$CONTAINER" >/dev/null 2>&1 || true
 
     if [[ "$TIMED_OUT" == true ]]; then
@@ -207,7 +218,9 @@ end; end; exit(0);"
         echo "      TIMEOUT (likely a graphics/GUI call)"
         TIMEDOUT=$((TIMEDOUT + 1))
         FAILED_LIST+=("$TEST_NAME  [TIMEOUT]")
-        OUTPUT="EXCEPTION: timed out after ${TIMEOUT_SECS}s"
+        OUTPUT=$(printf '%s\nEXCEPTION: timed out after %ss\nProcesses in the container at the timeout:\n%s' \
+            "$OUTPUT" "$TIMEOUT_SECS" "$PROCESSES")
+        show_output
     else
         RESULT_LINE=$(echo "$OUTPUT" | grep '^RESULT:')
         FAIL_COUNT=$(echo "$RESULT_LINE" | sed -n 's/.* failed=\([0-9]*\).*/\1/p')
@@ -217,10 +230,12 @@ end; end; exit(0);"
             echo "      CRASHED (no result line)"
             FAILED=$((FAILED + 1))
             FAILED_LIST+=("$TEST_NAME  [CRASHED]")
+            show_output
         elif [[ "${FAIL_COUNT:-0}" -gt 0 ]]; then
             echo "      FAILED"
             FAILED=$((FAILED + 1))
             FAILED_LIST+=("$TEST_NAME  [${FAIL_COUNT} failed, ${INC_COUNT:-0} incomplete]")
+            show_output
         elif [[ "${INC_COUNT:-0}" -gt 0 ]]; then
             echo "      ok (${INC_COUNT} incomplete)"
             PASSED=$((PASSED + 1))
