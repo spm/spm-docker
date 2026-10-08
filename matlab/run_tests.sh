@@ -75,6 +75,9 @@ else
 fi
 echo ""
 
+# Run as the calling user, so that tests can write to the mounted test data
+RUN_AS=(--user "$(id -u):$(id -g)")
+
 # -- Build the test list from the image, not from a source checkout -----------
 mapfile -t ALL_TESTS < <(
     "$DOCKER" run --rm --entrypoint sh "$IMAGE" -c \
@@ -186,7 +189,7 @@ end; end; exit(0);"
     CONTAINER="spm_test_${TEST_NAME}_$$"
     "$DOCKER" rm -f "$CONTAINER" >/dev/null 2>&1 || true
 
-    if ! "$DOCKER" run -d --name "$CONTAINER" "${MOUNT[@]}" "$IMAGE" \
+    if ! "$DOCKER" run -d --name "$CONTAINER" "${RUN_AS[@]}" "${MOUNT[@]}" "$IMAGE" \
             eval "$EXPR" >/dev/null 2>&1; then
         echo "      ERROR (could not start container)"
         FAILED=$((FAILED + 1))
@@ -213,6 +216,7 @@ end; end; exit(0);"
     [[ "$TIMED_OUT" == true ]] && PROCESSES=$("$DOCKER" top "$CONTAINER" 2>&1)
     "$DOCKER" rm -f "$CONTAINER" >/dev/null 2>&1 || true
 
+    PASSING=false
     if [[ "$TIMED_OUT" == true ]]; then
         # Almost always a blocked graphics call: figure(), uiwait(), spm_input()
         echo "      TIMEOUT (likely a graphics/GUI call)"
@@ -220,7 +224,6 @@ end; end; exit(0);"
         FAILED_LIST+=("$TEST_NAME  [TIMEOUT]")
         OUTPUT=$(printf '%s\nEXCEPTION: timed out after %ss\nProcesses in the container at the timeout:\n%s' \
             "$OUTPUT" "$TIMEOUT_SECS" "$PROCESSES")
-        show_output
     else
         RESULT_LINE=$(echo "$OUTPUT" | grep '^RESULT:')
         FAIL_COUNT=$(echo "$RESULT_LINE" | sed -n 's/.* failed=\([0-9]*\).*/\1/p')
@@ -230,20 +233,23 @@ end; end; exit(0);"
             echo "      CRASHED (no result line)"
             FAILED=$((FAILED + 1))
             FAILED_LIST+=("$TEST_NAME  [CRASHED]")
-            show_output
         elif [[ "${FAIL_COUNT:-0}" -gt 0 ]]; then
             echo "      FAILED"
             FAILED=$((FAILED + 1))
             FAILED_LIST+=("$TEST_NAME  [${FAIL_COUNT} failed, ${INC_COUNT:-0} incomplete]")
-            show_output
         elif [[ "${INC_COUNT:-0}" -gt 0 ]]; then
             echo "      ok (${INC_COUNT} incomplete)"
             PASSED=$((PASSED + 1))
+            PASSING=true
         else
             echo "      ok"
             PASSED=$((PASSED + 1))
+            PASSING=true
         fi
     fi
+
+    # The output of a passing test is only shown where the log can fold it
+    [[ "$PASSING" == true && -z "${GITHUB_ACTIONS:-}" ]] || show_output
 
     {
         echo "===TEST_FILE: $TEST_NAME==="
