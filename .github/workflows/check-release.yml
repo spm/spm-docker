@@ -1,0 +1,37 @@
+name: Check for new SPM release
+
+# Starts the container build once a new SPM release has been published.
+# It polls the public release list of spm/spm, so the release workflow there
+# needs no token for this repository.
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write # start the build workflow and keep this schedule enabled
+
+concurrency:
+  group: check-release
+  cancel-in-progress: false
+
+jobs:
+  check-release:
+    if: github.repository == 'spm/spm-docker'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # GitHub disables a schedule after 60 days without repository activity.
+      # Enabling the workflow again restarts that period.
+      - name: Keep the schedule enabled
+        run: gh api --method PUT "repos/${{ github.repository }}/actions/workflows/check-release.yml/enable"
+
+      - name: Start the build of a new release
+        run: bash .github/scripts/check_release.sh

@@ -1,4 +1,6 @@
 name: Build & Deploy Docker Containers
+# check-release.yml recognises a build by this title
+run-name: Build SPM ${{ inputs.spm_release || 'default' }}${{ inputs.spm_revision && '.' }}${{ inputs.spm_revision }}
 on:
   workflow_dispatch:
     inputs:
@@ -20,8 +22,6 @@ on:
         default: report
         type: choice
         options: [report, gate, skip]
-  repository_dispatch:
-    types: [trigger-container-build]
 
 permissions:
   contents: read
@@ -35,7 +35,7 @@ jobs:
   build-test-deploy-docker:
     runs-on: ubuntu-latest
     timeout-minutes: 150
-    env: # defaults, overwritten by workflow_dispatch / repository_dispatch below
+    env: # defaults, overwritten by the workflow_dispatch inputs below
       registry: ghcr.io
       MATLAB_VERSION: R2025b
       AGREE_TO_MATLAB_RUNTIME_LICENSE: "yes"
@@ -60,14 +60,6 @@ jobs:
           [ -n "${{ inputs.spm_release }}${{ inputs.spm_revision }}" ] && echo "SPM_REVISION=${{ inputs.spm_revision }}" >> $GITHUB_ENV
           echo "TESTS_MODE=${{ inputs.tests }}" >> $GITHUB_ENV
           exit 0
-
-      - name: Set environment variables for repository_dispatch
-        if: github.event_name == 'repository_dispatch'
-        run: |
-          echo "MATLAB_VERSION=${{ github.event.client_payload.matlab_version }}" >> $GITHUB_ENV
-          echo "AGREE_TO_MATLAB_RUNTIME_LICENSE=${{ github.event.client_payload.agree_to_matlab_runtime_license }}" >> $GITHUB_ENV
-          echo "SPM_RELEASE=${{ github.event.client_payload.spm_release }}" >> $GITHUB_ENV
-          echo "SPM_REVISION=${{ github.event.client_payload.spm_revision }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v4

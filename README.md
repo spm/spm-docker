@@ -1,6 +1,6 @@
 # SPM Containers
 
-This repository provides github action workflows for automatic docker and singularity image creation. They are triggered by releasing a new SPM version.
+This repository provides github action workflows for automatic docker and singularity image creation. A scheduled check starts them when a new SPM version has been released.
 
 ## Containers
 
@@ -107,6 +107,18 @@ The official SPM `Dockerfiles`:
 * [Dockerfile.local](https://github.com/spm/spm-docker/blob/main/matlab/Dockerfile.local) wrapping a locally built standalone, used to test unreleased SPM
 
 The singularity `sif` images are created from the docker images.
+
+### When the images are built
+
+Every hour, [check-release.yml](https://github.com/spm/spm-docker/blob/main/.github/workflows/check-release.yml)
+looks at the newest release of [spm/spm](https://github.com/spm/spm/releases), pre-releases included.
+If its images are missing, it starts the build once, as soon as the release
+has its source zip and its Linux standalone. A pre-release is published under
+its own tag only; a final release also moves the `latest` tags.
+
+If that build fails, the check fails as well until a build of the release is
+started by hand: *Actions > Build & Deploy Docker Containers > Run workflow*,
+with the SPM release, the revision and the MATLAB release of the standalone.
 
 ## Documentation
 
